@@ -1,6 +1,5 @@
 console.log("starting");
 
-const CANVAS_DIMENS_PX  = 1339;
 const NUM_INITIAL_CELLS = 200000;
 const SLEEP_TIME_MS     = 10;
 
