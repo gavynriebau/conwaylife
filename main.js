@@ -26,9 +26,22 @@ const clear = () => {
 };
 
 const start = () => {
+	cells = createCells();
 	populateInitialCells();
 	drawCells();
 	setInterval(update, SLEEP_TIME_MS);
+};
+
+const createCells = () => {
+	let cells = {};
+
+	for (let x = 0; x < canvasWidth; x++) {
+		cells[x] = cells[x] || {};
+		for (let y = 0; y < canvasHeight; y++) {
+			cells[x][y] = false;
+		}
+	}
+	return cells;
 };
 
 const drawCell = (cell) => {
@@ -39,7 +52,7 @@ const populateInitialCells = () => {
 	for (let i = 0; i < NUM_INITIAL_CELLS; i++) {
 		const x = getRandomInt(canvasWidth);
 		const y = getRandomInt(canvasHeight);
-		addCell({x, y});
+		cells[x][y] = true;
 	}
 };
 
@@ -56,22 +69,12 @@ const updateCells = () => {
 			const count = countNeighbours(cell);
 
 			if (count < 2 || count > 3) {
-				removeCell(cell);
+				cells[x][y] = false;
 			} else if (count === 3) {
-				addCell(cell);
+				cells[x][y] = true;
 			}
 		}
 	}
-};
-
-const removeCell = (cell) => {
-	cells[cell.x] = cells[cell.x] || {};
-	delete cells[cell.x][cell.y];
-};
-
-const addCell = (cell) => {
-	cells[cell.x]         = cells[cell.x] || {};
-	cells[cell.x][cell.y] = cells[cell.x][cell.y] || true;
 };
 
 const drawCells = () => {
@@ -79,7 +82,9 @@ const drawCells = () => {
 	ctx.fillStyle = 'green';
 	for (const x in cells) {
 		for (const y in cells[x]) {
-			drawCell({x, y});
+			if (cells[x][y]) {
+				drawCell({x, y});
+			}
 		}
 	}
 };
