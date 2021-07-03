@@ -1,10 +1,10 @@
 console.log("starting");
 
 const CANVAS_DIMENS_PX = 1339;
-const NUM_INITIAL_CELLS = 20000;
-const SLEEP_TIME_MS = 1000;
+const NUM_INITIAL_CELLS = 200000;
+const SLEEP_TIME_MS = 10;
 
-let cells = [];
+let cells = {};
 let canvasWidth = 0;
 let canvasHeight = 0;
 
@@ -31,23 +31,16 @@ const start = () => {
 	setInterval(update, SLEEP_TIME_MS);
 };
 
-const drawCell = (cell) => {
+const drawCell = (x, y) => {
 	ctx.fillStyle = 'green';
-	ctx.fillRect(cell.x, cell.y, 1, 1);
+	ctx.fillRect(x, y, 1, 1);
 };
 
 const populateInitialCells = () => {
 	for (let i = 0; i < NUM_INITIAL_CELLS; i++) {
 		const x = getRandomInt(canvasWidth);
 		const y = getRandomInt(canvasHeight);
-
-		const alreadyHasItem = cells.includes(cell => cell.x == x && cell.y == y);
-		if (!alreadyHasItem) {
-			cells.push({
-				x,
-				y
-			});
-		}
+		addCell(x, y);
 	}
 };
 
@@ -66,94 +59,55 @@ const updateCells = () => {
 			};
 			const count = countNeighbours(cell);
 			if (count < 2 || count > 3) {
-				removeCell(cell);
+				removeCell(cell.x, cell.y);
 			} else if (count === 3) {
-				addCell(cell);
+				addCell(cell.x, cell.y);
 			}
 		}
 	}
 };
 
-const removeCell = (cell) => {
-	cells = cells.filter(c => !areEqual(c, cell));
+const removeCell = (x, y) => {
+	cells[x] = cells[x] || {};
+	delete cells[x][y];
 };
 
-const addCell = (cell) => {
-	const match = cells.includes(c => areEqual(c, cell));
-	if (!match) {
-		cells.push(cell);
-	}
+const addCell = (x, y) => {
+	cells[x]    = cells[x] || {};
+	cells[x][y] = cells[x][y] || true;
 };
 
 const drawCells = () => {
 	clear();
-	for (const cell of cells) {
-		drawCell(cell);
+	for (const x in cells) {
+		for (const y in cells[x]) {
+			drawCell(x, y);
+		}
 	}
 };
 
 const countNeighbours = (cell) => {
 	let count = 0;
 
-	for (const c of cells) {
-		if (areEqual(cell, c)) {
-			continue;
-		}
+	const topLeft      = (cells[Math.min(Math.max(0, cell.x-1), canvasWidth-1)] || {})[Math.min(Math.max(cell.y-1, 0), canvasHeight)];
+	const topMiddle    = (cells[Math.min(Math.max(0, cell.x+0), canvasWidth-1)] || {})[Math.min(Math.max(cell.y-1, 0), canvasHeight)];
+	const topRight     = (cells[Math.min(Math.max(0, cell.x+1), canvasWidth-1)] || {})[Math.min(Math.max(cell.y-0, 0), canvasHeight)];
+	const middleLeft   = (cells[Math.min(Math.max(0, cell.x-1), canvasWidth-1)] || {})[Math.min(Math.max(cell.y+0, 0), canvasHeight)];
+	const middleRight  = (cells[Math.min(Math.max(0, cell.x+1), canvasWidth-1)] || {})[Math.min(Math.max(cell.y+0, 0), canvasHeight)];
+	const bottomLeft   = (cells[Math.min(Math.max(0, cell.x-1), canvasWidth-1)] || {})[Math.min(Math.max(cell.y+1, 0), canvasHeight)];
+	const bottomMiddle = (cells[Math.min(Math.max(0, cell.x+0), canvasWidth-1)] || {})[Math.min(Math.max(cell.y+1, 0), canvasHeight)];
+	const bottomRight  = (cells[Math.min(Math.max(0, cell.x+1), canvasWidth-1)] || {})[Math.min(Math.max(cell.y+1, 0), canvasHeight)];
 
-		if (areNeighbours(cell, c)) {
-			count += 1;
-		}
-	}
+	if (topLeft) count += 1;
+	if (topMiddle) count += 1;
+	if (topRight) count += 1;
+	if (middleLeft) count += 1;
+	if (middleRight) count += 1;
+	if (bottomLeft) count += 1;
+	if (bottomMiddle) count += 1;
+	if (bottomRight) count += 1;
 
 	return count;
-};
-
-const areEqual = (cellOne, cellTwo) => {
-	return cellOne.x === cellTwo.x && cellOne.y === cellTwo.y;
-};
-
-const areNeighbours = (cellOne, cellTwo) => {
-	// Top-left
-	if (cellOne.x + 1 === cellTwo.x && cellOne.y + 1 === cellTwo.y) {
-		return true;
-	}
-
-	// Top-middle
-	if (cellOne.x === cellTwo.x && cellOne.y + 1 === cellTwo.y) {
-		return true;
-	}
-
-	// Top-right
-	if (cellOne.x - 1 === cellTwo.x && cellOne.y + 1 === cellTwo.y) {
-		return true;
-	}
-
-	// Middle-left
-	if (cellOne.x + 1 === cellTwo.x && cellOne.y === cellTwo.y) {
-		return true;
-	}
-
-	// Middle-right
-	if (cellOne.x - 1 === cellTwo.x && cellOne.y === cellTwo.y) {
-		return true;
-	}
-
-	// Bottom-left
-	if (cellOne.x + 1 === cellTwo.x && cellOne.y - 1 === cellTwo.y) {
-		return true;
-	}
-
-	// Bottom-middle
-	if (cellOne.x === cellTwo.x && cellOne.y - 1 === cellTwo.y) {
-		return true;
-	}
-
-	// Bottom-right
-	if (cellOne.x - 1 === cellTwo.x && cellOne.y - 1 === cellTwo.y) {
-		return true;
-	}
-
-	return false;
 };
 
 const getRandomInt = (max) => {
