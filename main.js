@@ -89,7 +89,12 @@ const drawCells = () => {
 };
 
 const atCoords = (x, y) => {
-	return (cells[Math.min(Math.max(0, x), canvasWidth-1)] || {})[Math.min(Math.max(y, 0), canvasHeight)];
+	if (x < 0)             return false;
+	if (x >= canvasWidth)  return false;
+	if (y < 0)             return false;
+	if (y >= canvasHeight) return false;
+
+	return cells[x][y];
 };
 
 const countNeighbours = (cell) => {
@@ -97,7 +102,7 @@ const countNeighbours = (cell) => {
 
 	const topLeft      = atCoords(cell.x-1, cell.y-1);
 	const topMiddle    = atCoords(cell.x+0, cell.y-1);
-	const topRight     = atCoords(cell.x+1, cell.y-0);
+	const topRight     = atCoords(cell.x+1, cell.y-1);
 	const middleLeft   = atCoords(cell.x-1, cell.y+0);
 	const middleRight  = atCoords(cell.x+1, cell.y+0);
 	const bottomLeft   = atCoords(cell.x-1, cell.y+1);
