@@ -2,7 +2,7 @@
 
 An implementation of Conway's Game of Life in javascript and drawn on a HTML canvas.
 
-![Conway's Game of Life](pics/conway.png)
+![Conway's Game of Life](pics/demo.gif)
 
 The performance isn't great but can be made better by making your browser window smaller.
 
