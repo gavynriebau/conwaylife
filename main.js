@@ -1,6 +1,5 @@
-console.log("starting");
-
-const NUM_INITIAL_CELLS = 200000;
+const NUM_INITIAL_CELLS = 100000;
+const NUM_INITIAL_CELLS_PERCENT = 5;
 const SLEEP_TIME_MS     = 10;
 
 let cells        = {};
@@ -35,11 +34,12 @@ const createCells = () => {
 	let cells = {};
 
 	for (let x = 0; x < canvasWidth; x++) {
-		cells[x] = cells[x] || {};
+		cells[x] = {};
 		for (let y = 0; y < canvasHeight; y++) {
 			cells[x][y] = false;
 		}
 	}
+
 	return cells;
 };
 
@@ -48,7 +48,8 @@ const drawCell = (cell) => {
 };
 
 const populateInitialCells = () => {
-	for (let i = 0; i < NUM_INITIAL_CELLS; i++) {
+	const numInitialCells = Math.round(NUM_INITIAL_CELLS_PERCENT * canvasWidth * canvasHeight / 100.0);
+	for (let i = 0; i < numInitialCells; i++) {
 		const x = getRandomInt(canvasWidth);
 		const y = getRandomInt(canvasHeight);
 		cells[x][y] = true;
@@ -56,7 +57,6 @@ const populateInitialCells = () => {
 };
 
 const update = () => {
-	console.log("Updating");
 	updateCells();
 	drawCells();
 };
